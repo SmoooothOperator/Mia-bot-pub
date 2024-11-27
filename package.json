@@ -1,0 +1,17 @@
+{
+  "name": "mia",
+  "version": "1.0.0",
+  "description": "Mia is a greeting and help bot for Triton Auto Club",
+  "main": "mia.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Caden",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1",
+    "nodemon": "^3.0.1",
+    "openai": "^4.17.3"
+  }
+}
