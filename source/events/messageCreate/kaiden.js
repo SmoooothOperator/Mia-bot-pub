@@ -4,7 +4,10 @@ const fetchAndReact = require("../../utils/fetchAndReact");
 
 module.exports = async (client, message) => {
   //if target includes the message sender id
-  if (message.content.toLowerCase().includes("freak")) {
+  if (
+    message.content.toLowerCase().includes("freak") ||
+    message.content.toLowerCase().includes("变态")
+  ) {
     try {
       /* The commented line `// await fetchAndReact(target_emojis, client, message);` is calling a function
 named `fetchAndReact` from a module located at `../../utils/fetchAndReact`. This function is likely
