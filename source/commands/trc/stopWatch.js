@@ -76,7 +76,13 @@ module.exports = {
       });
 
       // Get everyone's best laps
+
       let bestLaps = jsonData.sessions[0].bestLaps;
+      // TODO? session 0 and 1 can correspond to quali and race, change this code for non-rally stuff
+      // Catches no bestLap data error
+      if (!bestLaps || bestLaps.length === 0) {
+        return interaction.reply("No laps data available.");
+      }
 
       // Create a map for player names and their respective car indices
       const playerMap = players.reduce((acc, player, index) => {
@@ -90,14 +96,21 @@ module.exports = {
       const bestLapJson = bestLaps.reduce((best, current) => {
         return current.time < best.time ? current : best;
       });
+
+      const worstLapJson = bestLaps.reduce((worst, current) => {
+        return current.time > worst.time ? current : worst;
+      });
+      const worstLap = worstLapJson.time;
       const bestLap = bestLapJson.time;
 
       // Match each car's time with the respective player
       let bestLapsData = bestLaps.reduce((acc, entry) => {
         const playerName = playerMap[entry.car]; // Use playerMap to get player name by car index
         if (playerName) {
+          const maxTimeDiff = worstLap - bestLap;
+          const barStep = maxTimeDiff / 20; // allow maximum of 20 bars
           const timeDiff = entry.time - bestLap;
-          const numBars = Math.round(timeDiff / 2000);
+          const numBars = Math.round(timeDiff / barStep);
           const bar = "█".repeat(numBars).padEnd(20, " ");
           acc[playerName] = {
             time: msToTime(entry.time),
