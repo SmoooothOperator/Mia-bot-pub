@@ -9,7 +9,7 @@
   "author": "Caden",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^14.14.1",
+    "discord.js": "^14.16.3",
     "dotenv": "^16.3.1",
     "nodemon": "^3.0.1",
     "openai": "^4.17.3"
