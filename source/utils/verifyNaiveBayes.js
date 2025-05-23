@@ -51,7 +51,7 @@ module.exports = async (client, reaction, user) => {
 
       // Mark as legitimate
       await reaction.message.edit(
-        `${alertContent}\n\n❌ **Marked as legitimate** by ${user.tag}`
+        `${alertContent}\n\n❌ **Marked as illegitimate** by ${user.tag}`
       );
 
       // Train model with this legitimate message

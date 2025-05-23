@@ -21,14 +21,14 @@ module.exports = async (client, message) => {
   if (message.author.bot) return;
 
   // Skip valid verification messages - these should be handled by Tia
-  if (
-    verifyMessageFormat.test(message.content.trim()) ||
-    differentThanVerifyFormat.test(message.content.trim()) ||
-    differentThanVerifyFormat2.test(message.content.trim())
-  ) {
-    console.log("Valid verification format detected - skipping spam detection");
-    return;
-  }
+  // if (
+  //   verifyMessageFormat.test(message.content.trim()) ||
+  //   differentThanVerifyFormat.test(message.content.trim()) ||
+  //   differentThanVerifyFormat2.test(message.content.trim())
+  // ) {
+  //   console.log("Valid verification format detected - skipping spam detection");
+  //   return;
+  // }
 
   let spam = false;
   let reason = "";
