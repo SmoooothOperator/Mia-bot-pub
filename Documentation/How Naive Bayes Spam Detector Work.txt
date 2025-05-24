@@ -1,0 +1,150 @@
+# Naive Bayes Spam Detection System Documentation
+
+## Overview
+This codebase implements a Naive Bayes classifier for detecting spam messages in a Discord verification channel. The system combines automated detection with human verification and continuous learning.
+
+## File Structure
+```
+Mia/source/
+├── utils/
+│   ├── trainNaiveBayes.js      # Training module
+│   ├── naiveBayesPredict.js    # Prediction module  
+│   └── verifyNaiveBayes.js     # Human verification handler
+├── events/
+│   └── messageCreate/
+│       └── ban_spammer.js      # Main spam detection logic
+└── commands/
+    └── train_spam.js           # Manual training command
+```
+
+## How It Works
+
+### 1. Message Detection Flow (ban_spammer.js)
+```
+New Message in Verify Channel
+         ↓
+Check if message content is spam using naiveBayesPredict.js
+         ↓
+If prediction === "spam":
+    - Send alert to board channel
+    - Add reaction buttons (✅❌📚)
+    - Wait for human verification
+```
+
+### 2. Training System (trainNaiveBayes.js)
+The training module handles two types of input:
+- **Manual Training**: Via `/train_spam` command with message and label
+- **Automatic Training**: From human verification decisions
+
+Process:
+1. Load existing model from NB_training.json (if exists)
+2. Create new Bayes classifier or load from JSON
+3. Train with new (message, label) pair
+4. Save updated model back to JSON file
+
+Data Structure:
+```json
+{
+  "model": "{serialized_bayes_model}",
+  "lastUpdated": "2025-05-22T10:30:00.000Z",
+  "trainingCount": 42
+}
+```
+
+### 3. Prediction System (naiveBayesPredict.js)
+Process:
+1. Load trained model from NB_training.json
+2. Create Bayes classifier from stored JSON
+3. Classify input message
+4. Return prediction object:
+```javascript
+{
+  prediction: "spam" | "legitimate" | "unknown" | "error",
+  confidence: 1  // bayes library doesn't provide confidence scores
+}
+```
+
+### 4. Human Verification (verifyNaiveBayes.js)
+Handles board member reactions to spam alerts:
+
+**✅ (Ban User):**
+- Bans the flagged user
+- Trains model with message labeled as "spam"
+- Updates alert message with ban confirmation
+
+**❌ (Mark Legitimate):**
+- Marks message as false positive
+- Trains model with message labeled as "legitimate"
+- Updates alert message with legitimate confirmation
+
+**📚 (Manual Training):**
+- Prompts user to use `/train_spam` command
+- Allows manual labeling for edge cases
+
+### 5. Alert Message Format
+The system generates alerts in this format:
+```
+🤖 **Spam Detection Alert**
+User: @username (username#1234)
+Channel: #verify-channel
+**Message:** [actual message content]
+
+**AI Prediction:** Likely spam
+
+React with ✅ to ban user, ❌ to mark as legitimate, 📚 to use as training data
+```
+
+## Data Flow Diagram
+```
+User Message → naiveBayesPredict.js → Spam Alert → Human Decision
+     ↓                                                    ↓
+Manual Training ← trainNaiveBayes.js ← verifyNaiveBayes.js
+     ↓                    ↑
+NB_training.json ←────────┘
+```
+
+## Training Data Sources
+1. **Manual Training**: Board members use `/train_spam` command
+2. **Verified Decisions**: Automatic training from ✅/❌ reactions
+3. **Historical Data**: Previous spam/legitimate classifications
+
+## Label Types
+- **"spam"**: Malicious, promotional, or unwanted messages
+- **"legitimate"**: Valid verification attempts from real users
+
+## Key Features
+- **Incremental Learning**: Model improves with each human decision
+- **Human-in-the-Loop**: Reduces false positives through board verification
+- **Persistent Storage**: Model survives bot restarts
+- **Multiple Training Methods**: Commands and reaction-based training
+
+## Error Handling
+- Model loading failures default to "unknown" prediction
+- Training errors are logged but don't crash the bot
+- Missing training data results in no prediction
+- User ban failures are reported to board channel
+
+## Dependencies
+- `bayes` npm package for Naive Bayes implementation
+- Custom `read_write.js` utility for JSON file operations
+- Discord.js for bot interactions and event handling
+
+## Usage Examples
+
+### Training via Command:
+```
+/train_spam message:"interested in car" label:spam
+/train_spam message:"John | Warren | 22" label:legitimate
+```
+
+### Automatic Training Flow:
+1. User posts: "interested in car"
+2. Bot predicts: spam
+3. Board member reacts: ✅
+4. Bot bans user AND trains model with ("interested in car", "spam")
+
+## Performance Considerations
+- Model is loaded fresh for each prediction (could be optimized)
+- JSON serialization/deserialization on each training cycle
+- In-memory model during prediction phase
+- File I/O for persistence between bot restarts
