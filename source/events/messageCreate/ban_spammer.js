@@ -1,8 +1,8 @@
 const spamDetector = require("../../utils/naiveBayesPredict");
 const trainNaiveBayes = require("../../utils/trainNaiveBayes");
+const { boardChannelID } = require("../../constants");
 
 const verifyChannelID = "902108236713426975";
-const boardChannelID = "1248444141122224190";
 
 // Import the same regex patterns from Tia
 const verifyMessageFormat =
