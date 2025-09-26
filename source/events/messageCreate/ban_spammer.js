@@ -1,6 +1,6 @@
 const spamDetector = require("../../utils/naiveBayesPredict");
 const trainNaiveBayes = require("../../utils/trainNaiveBayes");
-const { boardChannelID } = require("../../constants");
+const { boardChannelID } = require("../../../constants");
 
 const verifyChannelID = "902108236713426975";
 
