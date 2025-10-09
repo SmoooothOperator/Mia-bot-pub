@@ -16,7 +16,7 @@ const differentThanVerifyFormat2 = /^(.+)\s*[|,/-]\s*(.+)\s*$/i;
 
 module.exports = async (client, message) => {
   // Skip if not in verify channel
-  if (message.channel.id !== testChannelID) return;
+  if (message.channel.id !== verifyChannelID) return;
 
   // Skip bot messages
   if (message.author.bot) return;
