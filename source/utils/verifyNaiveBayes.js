@@ -1,9 +1,12 @@
 const trainNaiveBayes = require("./trainNaiveBayes");
-const { boardChannelID } = require("../../../constants");
+const { boardChannelID, verifyChannelID } = require("../../constants");
 
 module.exports = async (client, reaction, user) => {
   // Skip if bot reaction or not in board channel
-  if (user.bot || reaction.message.channel.id !== boardChannelID) return;
+  if (user.bot || reaction.message.channel.id !== boardChannelID) {
+    console.log("No detection");
+    return;
+  }
 
   // Check if this is a spam detection message
   if (!reaction.message.content.includes("🤖 **Spam Detection Alert**")) {
@@ -13,6 +16,8 @@ module.exports = async (client, reaction, user) => {
 
   try {
     console.log("Is a Spam Detection Message");
+
+    const verifyChannel = client.channels.cache.get(verifyChannelID);
 
     // Extract message content and user info from the alert
     const alertContent = reaction.message.content;

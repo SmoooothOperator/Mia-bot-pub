@@ -3,6 +3,7 @@ const trainNaiveBayes = require("../../utils/trainNaiveBayes");
 const { boardChannelID } = require("../../../constants");
 
 const verifyChannelID = "902108236713426975";
+const testChannelID = "1141162992310960218";
 
 // Import the same regex patterns from Tia
 const verifyMessageFormat =
@@ -15,7 +16,7 @@ const differentThanVerifyFormat2 = /^(.+)\s*[|,/-]\s*(.+)\s*$/i;
 
 module.exports = async (client, message) => {
   // Skip if not in verify channel
-  if (message.channel.id !== verifyChannelID) return;
+  if (message.channel.id !== testChannelID) return;
 
   // Skip bot messages
   if (message.author.bot) return;
@@ -39,7 +40,7 @@ module.exports = async (client, message) => {
       const prediction = await spamDetector(message.content);
 
       if (prediction.prediction === "spam") {
-        console.log("spam");
+        // console.log("spam");
         // Don't automatically ban, ask board for verification
         const boardChannel = client.channels.cache.get(boardChannelID);
 

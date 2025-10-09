@@ -80,15 +80,13 @@ module.exports = {
       // Send final message to the reminder channel
       const channel = client.channels.cache.get(reminderData.channel);
       if (channel) {
-        // Handle both role and user pings - role starts with <@&, user starts with <@
-        const mentionTarget = reminderData.role.startsWith('<@&') 
-          ? reminderData.role  // Already formatted role mention
-          : reminderData.role.startsWith('<@') 
-            ? reminderData.role  // Already formatted user mention
-            : `<@${reminderData.role}>`; // Fallback for user ID
-
         await channel.send(
-          `🛑 **Reminder stopped by administrator:** ${reminderData.message}\n${mentionTarget} - This reminder has been manually stopped.`
+          `🛑 **Reminder stopped by administrator:** ${
+            reminderData.message
+          }\n<@&${reminderData.role.replace(
+            /[<@&>]/g,
+            ""
+          )}> - This reminder has been manually stopped.`
         );
       }
 
