@@ -2,7 +2,7 @@ const spamDetector = require("../../utils/naiveBayesPredict");
 const trainNaiveBayes = require("../../utils/trainNaiveBayes");
 const { boardChannelID } = require("../../../constants");
 
-const verifyChannelID = "902108236713426975";
+const verifyChannelID = "1375169221415276564";
 const testChannelID = "1141162992310960218";
 
 // Import the same regex patterns from Tia
@@ -16,7 +16,7 @@ const differentThanVerifyFormat2 = /^(.+)\s*[|,/-]\s*(.+)\s*$/i;
 
 module.exports = async (client, message) => {
   // Skip if not in verify channel
-  if (message.channel.id !== testChannelID) return;
+  if (message.channel.id !== verifyChannelID) return;
 
   // Skip bot messages
   if (message.author.bot) return;
@@ -40,23 +40,37 @@ module.exports = async (client, message) => {
       const prediction = await spamDetector(message.content);
 
       if (prediction.prediction === "spam") {
-        // console.log("spam");
-        // Don't automatically ban, ask board for verification
-        const boardChannel = client.channels.cache.get(boardChannelID);
+        try {
+          console.log("Auto-banning spammer...");
 
-        if (boardChannel) {
-          const verificationMessage = await boardChannel.send(
-            `🤖 **Spam Detection Alert**\n` +
-              `User: ${message.author} (${message.author.tag})\n` +
-              `Channel: <#${message.channel.id}>\n` +
-              `**Message:** ${message.content}\n\n` +
-              `**AI Prediction:** Likely spam\n\n` +
-              `React with ✅ to ban user, ❌ to mark as legitimate, 📚 to use as training data`
-          );
+          // 1. Ban the user
+          const member = await message.guild.members.fetch(message.author.id);
+          await member.ban({
+            reason: "Detected Spam",
+          });
 
-          await verificationMessage.react("✅");
-          await verificationMessage.react("❌");
-          await verificationMessage.react("📚");
+          // 2. Train the model automatically (reinforcement)
+          await trainNaiveBayes(message.content, "spam");
+
+          // 3. Notify the Board Channel (Informational)
+          const boardChannel = client.channels.cache.get(boardChannelID);
+          if (boardChannel) {
+            await boardChannel.send(
+              `🤖 **Spam Detection Auto-Ban**\n` +
+                `User: ${message.author} (${message.author.tag})\n` +
+                `Channel: <#${message.channel.id}>\n` +
+                `**Message:** ${message.content}\n\n` +
+                `**Status:** ✅ User automatically banned and model updated.`,
+            );
+          }
+        } catch (error) {
+          console.error("Auto-ban failed:", error);
+          const boardChannel = client.channels.cache.get(boardChannelID);
+          if (boardChannel) {
+            await boardChannel.send(
+              `⚠️ **Spam Detection Error:** Detected spam from ${message.author} but failed to ban.\nError: ${error.message}. Ban manually if needed.`,
+            );
+          }
         }
         return;
       }

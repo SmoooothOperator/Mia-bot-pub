@@ -21,6 +21,15 @@ module.exports = async (client, reaction, user) => {
 
     // Extract message content and user info from the alert
     const alertContent = reaction.message.content;
+
+    // Check if the message has already been processed
+    if (
+      alertContent.includes("✅ **BANNED**") ||
+      alertContent.includes("❌ **Marked as illegitimate**")
+    ) {
+      return;
+    }
+
     const messageMatch = alertContent.match(/\*\*Message:\*\* (.+?)\n/);
     const userMatch = alertContent.match(/User: <@(\d+)>/);
 
@@ -41,13 +50,13 @@ module.exports = async (client, reaction, user) => {
         });
 
         await reaction.message.edit(
-          `${alertContent}\n\n✅ **BANNED** by ${user.tag}`
+          `${alertContent}\n\n✅ **BANNED** by ${user.tag}`,
         );
 
         // Send feedback message to verify channel
         if (verifyChannel) {
           await verifyChannel.send(
-            `🚫 <@${userId}> has been banned due to spam detection.`
+            `🚫 <@${userId}> has been banned due to spam detection.`,
           );
         }
 
@@ -62,7 +71,7 @@ module.exports = async (client, reaction, user) => {
 
       // Mark as legitimate
       await reaction.message.edit(
-        `${alertContent}\n\n❌ **Marked as illegitimate** by ${user.tag}`
+        `${alertContent}\n\n❌ **Marked as illegitimate** by ${user.tag}`,
       );
 
       // Train model with this legitimate message
@@ -70,7 +79,7 @@ module.exports = async (client, reaction, user) => {
     } else if (reaction.emoji.name === "📚") {
       // Use as training data - ask for label
       await reaction.message.reply(
-        `📚 ${user}, please use the \`/train_spam\` command to manually label this message for training.`
+        `📚 ${user}, please use the \`/train_spam\` command to manually label this message for training.`,
       );
     }
   } catch (error) {
