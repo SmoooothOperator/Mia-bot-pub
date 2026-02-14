@@ -14,10 +14,11 @@ const differentThanVerifyFormat =
 
 const differentThanVerifyFormat2 = /^(.+)\s*[|,/-]\s*(.+)\s*$/i;
 
-const verifyChannel = client.channels.cache.get(verifyChannelID);
 
 
 module.exports = async (client, message) => {
+  const verifyChannel = client.channels.cache.get(verifyChannelID);
+
   // Skip if not in verify channel
   if (message.channel.id !== verifyChannelID) return;
 
@@ -57,11 +58,11 @@ module.exports = async (client, message) => {
           // 2. Train the model automatically (reinforcement)
           await trainNaiveBayes(message.content, "spam");
 
-        if (verifyChannel) {
-          await verifyChannel.send(
-            `🚫 <@${message.author.id}> has been banned due to spam detection.`
-          );
-        }
+          if (verifyChannel) {
+            await verifyChannel.send(
+              `🚫 <@${message.author.id}> has been banned due to spam detection.`
+            );
+          }
 
           // 3. Notify the Board Channel (Informational)
           const boardChannel = client.channels.cache.get(boardChannelID);
